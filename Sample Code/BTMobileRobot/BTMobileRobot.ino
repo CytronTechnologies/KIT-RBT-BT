@@ -1,9 +1,9 @@
 #include "pitches.h"
 
-#define HC06_TX 3
-#define HC06_RX 4
+#define BT_TX 3
+#define BT_RX 4
 #include "SoftwareSerial.h"
-SoftwareSerial HC06Serial(HC06_TX, HC06_RX); // Maker UNO RX, TX
+SoftwareSerial BTSerial(BT_TX, BT_RX); // Maker UNO RX, TX
 
 #define BUTTON  2
 #define L293N_ENA 5
@@ -13,7 +13,7 @@ SoftwareSerial HC06Serial(HC06_TX, HC06_RX); // Maker UNO RX, TX
 #define L293N_IN3 10
 #define L293N_IN4 11
 
-boolean HC06Connect = false;
+boolean BTConnect = false;
 char inChar;
 String inString;
 
@@ -28,24 +28,24 @@ void setup()
   pinMode(L293N_IN4, OUTPUT);
 
   Serial.begin(9600);
-  HC06Serial.begin(9600);
+  BTSerial.begin(9600);
 
   delay(1000);
 }
 
 void loop()
 {
-  if (HC06Serial.available()) {
+  if (BTSerial.available()) {
 
-    if (HC06Connect == false) {
-      HC06Connect = true;
+    if (BTConnect == false) {
+      BTConnect = true;
       playBtConnectMelody();
     }
 
 //    delay(100);
     inString = "";
-    while (HC06Serial.available()) {
-      inChar = HC06Serial.read();
+    while (BTSerial.available()) {
+      inChar = BTSerial.read();
       inString = inString + inChar;
     }
     Serial.println(inString);
@@ -148,6 +148,3 @@ void robotTurnLeft(int motorSpeed)
   digitalWrite(L293N_IN3, LOW);
   digitalWrite(L293N_IN4, HIGH);
 }
-
-
-
