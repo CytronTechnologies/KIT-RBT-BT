@@ -75,8 +75,8 @@ void loop()
     else if (inString.startsWith("+DISC")) {
       BTConnect = false;
       delay(1000);
-      while (HC06Serial.available()) {
-        HC06Serial.read();
+      while (BTSerial.available()) {
+        BTSerial.read();
       }
       playBtDisconnectMelody();
     }
