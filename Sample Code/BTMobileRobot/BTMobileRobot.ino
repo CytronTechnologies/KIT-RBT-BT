@@ -73,7 +73,7 @@ void loop()
       robotTurnRight(150);
     }
     else if (inString.startsWith("+DISC")) {
-      HC06Connect = false;
+      BTConnect = false;
       delay(1000);
       while (HC06Serial.available()) {
         HC06Serial.read();
