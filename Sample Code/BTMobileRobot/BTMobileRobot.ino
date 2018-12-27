@@ -1,4 +1,3 @@
-#include "pitches.h"
 
 #define BT_TX 3
 #define BT_RX 4
@@ -6,12 +5,27 @@
 SoftwareSerial BTSerial(BT_TX, BT_RX); // Maker UNO RX, TX
 
 #define BUTTON  2
+#define PIEZO   8
 #define L293N_ENA 5
 #define L293N_ENB 6
 #define L293N_IN1 7
 #define L293N_IN2 9
 #define L293N_IN3 10
 #define L293N_IN4 11
+
+#define NOTE_G4  392
+#define NOTE_C5  523
+#define NOTE_G5  784
+#define NOTE_C6  1047
+
+int btConnect[] = {NOTE_G5, NOTE_C6};
+int btConnectNoteDurations[] = {12, 8};
+
+int btDisconnect[] = {NOTE_C5, NOTE_G4};
+int btDisconnectNoteDurations[] = {12, 8};
+
+#define playBtConnectMelody() playMelody(btConnect, btConnectNoteDurations, 2)
+#define playBtDisconnectMelody() playMelody(btDisconnect, btDisconnectNoteDurations, 2)
 
 boolean BTConnect = false;
 char inChar;
@@ -80,6 +94,19 @@ void loop()
       }
       playBtDisconnectMelody();
     }
+  }
+}
+
+void playMelody(int *melody, int *noteDurations, int notesLength)
+{
+  pinMode(PIEZO, OUTPUT);
+  
+  for (int thisNote = 0; thisNote < notesLength; thisNote++) {
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(PIEZO, melody[thisNote], noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    noTone(PIEZO);
   }
 }
 
