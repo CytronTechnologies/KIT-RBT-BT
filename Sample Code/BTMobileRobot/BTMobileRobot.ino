@@ -1,11 +1,11 @@
-#include "pitches.h"
 
-#define HC06_TX 3
-#define HC06_RX 4
+#define BT_TX 3
+#define BT_RX 4
 #include "SoftwareSerial.h"
-SoftwareSerial HC06Serial(HC06_TX, HC06_RX); // Maker UNO RX, TX
+SoftwareSerial BTSerial(BT_TX, BT_RX); // Maker UNO RX, TX
 
 #define BUTTON  2
+#define PIEZO   8
 #define L293N_ENA 5
 #define L293N_ENB 6
 #define L293N_IN1 7
@@ -13,7 +13,21 @@ SoftwareSerial HC06Serial(HC06_TX, HC06_RX); // Maker UNO RX, TX
 #define L293N_IN3 10
 #define L293N_IN4 11
 
-boolean HC06Connect = false;
+#define NOTE_G4  392
+#define NOTE_C5  523
+#define NOTE_G5  784
+#define NOTE_C6  1047
+
+int btConnect[] = {NOTE_G5, NOTE_C6};
+int btConnectNoteDurations[] = {12, 8};
+
+int btDisconnect[] = {NOTE_C5, NOTE_G4};
+int btDisconnectNoteDurations[] = {12, 8};
+
+#define playBtConnectMelody() playMelody(btConnect, btConnectNoteDurations, 2)
+#define playBtDisconnectMelody() playMelody(btDisconnect, btDisconnectNoteDurations, 2)
+
+boolean BTConnect = false;
 char inChar;
 String inString;
 
@@ -28,24 +42,24 @@ void setup()
   pinMode(L293N_IN4, OUTPUT);
 
   Serial.begin(9600);
-  HC06Serial.begin(9600);
+  BTSerial.begin(9600);
 
   delay(1000);
 }
 
 void loop()
 {
-  if (HC06Serial.available()) {
+  if (BTSerial.available()) {
 
-    if (HC06Connect == false) {
-      HC06Connect = true;
+    if (BTConnect == false) {
+      BTConnect = true;
       playBtConnectMelody();
     }
 
 //    delay(100);
     inString = "";
-    while (HC06Serial.available()) {
-      inChar = HC06Serial.read();
+    while (BTSerial.available()) {
+      inChar = BTSerial.read();
       inString = inString + inChar;
     }
     Serial.println(inString);
@@ -73,13 +87,26 @@ void loop()
       robotTurnRight(150);
     }
     else if (inString.startsWith("+DISC")) {
-      HC06Connect = false;
+      BTConnect = false;
       delay(1000);
-      while (HC06Serial.available()) {
-        HC06Serial.read();
+      while (BTSerial.available()) {
+        BTSerial.read();
       }
       playBtDisconnectMelody();
     }
+  }
+}
+
+void playMelody(int *melody, int *noteDurations, int notesLength)
+{
+  pinMode(PIEZO, OUTPUT);
+  
+  for (int thisNote = 0; thisNote < notesLength; thisNote++) {
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(PIEZO, melody[thisNote], noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    noTone(PIEZO);
   }
 }
 
@@ -148,6 +175,3 @@ void robotTurnLeft(int motorSpeed)
   digitalWrite(L293N_IN3, LOW);
   digitalWrite(L293N_IN4, HIGH);
 }
-
-
-
